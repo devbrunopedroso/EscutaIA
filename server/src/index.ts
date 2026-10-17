@@ -489,9 +489,18 @@ await app.register(async (api) => {
 
 // ---------- site (build do Vite) ----------
 if (config.webDist && fs.existsSync(config.webDist)) {
-  await app.register(fastifyStatic, { root: config.webDist, wildcard: false });
+  // index.html sem cache (senão, depois de atualizar o app, a janela abre a versão antiga);
+  // os arquivos de /assets têm hash no nome e podem ficar em cache.
+  await app.register(fastifyStatic, {
+    root: config.webDist,
+    wildcard: false,
+    cacheControl: false,
+    setHeaders: (res, file) => {
+      if (file.endsWith(".html")) res.header("Cache-Control", "no-cache");
+    },
+  });
   app.setNotFoundHandler((req, reply) =>
-    req.url.startsWith("/api/") ? reply.code(404).send({ error: "rota não encontrada" }) : reply.sendFile("index.html"),
+    req.url.startsWith("/api/") ? reply.code(404).send({ error: "rota não encontrada" }) : reply.header("Cache-Control", "no-cache").sendFile("index.html"),
   );
 } else {
   // sendFile do áudio precisa do decorator mesmo sem o site.

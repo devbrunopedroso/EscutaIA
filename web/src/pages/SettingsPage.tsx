@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, fmtDate } from "../api";
 import { TranscriptionSettings } from "../TranscriptionSettings";
 
@@ -75,6 +76,9 @@ export function SettingsPage() {
   return (
     <div className="stack narrow">
       <h2>Configurações</h2>
+      <p className="muted small">
+        Dúvida sobre como saber que está gravando ou onde fica o ícone na barra de menus? <Link to="/ajuda/gravacao">Veja a ajuda</Link>.
+      </p>
       <TranscriptionSettings />
 
       <section className="card stack">

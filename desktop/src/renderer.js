@@ -6,8 +6,18 @@ const $ = (id) => document.getElementById(id);
 const api = window.escutaia;
 let settings = null;
 
+// Estado da gravação também vai para a janela principal do app (e para a bandeja).
+const report = (patch) => api.recordingState(patch);
+
 function showError(e) {
-  $("error").textContent = e ? (e.message ?? String(e)) : "";
+  const msg = e ? (e.message ?? String(e)) : "";
+  $("error").textContent = msg;
+  if (msg) report({ starting: false, error: msg });
+}
+
+function showHint(msg) {
+  $("error").textContent = msg;
+  report({ hint: msg });
 }
 
 // ---------------- captura ----------------
@@ -19,10 +29,11 @@ async function systemAudioStream() {
   // captura fica esperando, então avisamos o que fazer.
   const hint = setTimeout(() => {
     if (settings.platform === "darwin")
-      showError("Clique em “Permitir” no aviso do macOS para gravar o áudio do sistema. Se não apareceu: Ajustes do Sistema → Privacidade e Segurança → Gravação de Tela e Áudio do Sistema → EscutaIA.");
+      showHint("Clique em “Permitir” no aviso do macOS para gravar o áudio do sistema. Se não apareceu: Ajustes do Sistema → Privacidade e Segurança → Gravação de Tela e Áudio do Sistema → EscutaIA.");
   }, 4000);
   const display = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).finally(() => clearTimeout(hint));
   showError(null);
+  report({ hint: null });
   display.getVideoTracks().forEach((t) => t.stop()); // só o áudio interessa
   const tracks = display.getAudioTracks();
   if (!tracks.length) {
@@ -100,6 +111,7 @@ const scale = (v) => Math.min(1, v * 8); // RMS de fala fica ~0.02–0.1
 async function start() {
   showError(null);
   if (rec) return;
+  report({ starting: true, error: null, hint: null, lastId: null });
   const capture = await openCapture(settings.mic);
   const chunks = [];
   const recorder = new MediaRecorder(capture.stream, { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 96000 });
@@ -109,6 +121,7 @@ async function start() {
   const title = $("title").value.trim() || `Reunião de ${startedAt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`;
   rec = { capture, recorder, chunks, startedAt, title, silentMs: 0 };
   rec.timer = setInterval(tick, 1000);
+  report({ starting: false, recording: true, title, startedAt: startedAt.toISOString(), elapsed: "0:00" });
   render();
 }
 
@@ -135,21 +148,23 @@ async function stop(reason = null) {
     r.recorder.stop();
   });
   r.capture.close();
-  api.recordingState({ recording: false });
+  report({ recording: false, uploading: true, elapsed: null });
   $("status").textContent = "Enviando gravação…";
   $("record").disabled = true;
   try {
     const blob = new Blob(r.chunks, { type: "audio/webm" });
-    await api.upload(await blob.arrayBuffer(), {
+    const { id } = await api.upload(await blob.arrayBuffer(), {
       title: r.title,
       startedAt: r.startedAt.toISOString(),
       stopReason: reason,
     });
+    report({ uploading: false, lastId: id, title: r.title, error: null });
     $("status").textContent = "Enviado! A transcrição já começou — o app avisa quando terminar.";
     $("title").value = "";
   } catch (e) {
     // Não perde a gravação: oferece salvar o arquivo para enviar depois pelo site.
     $("status").textContent = "";
+    report({ uploading: false });
     showError(`Falha ao enviar: ${e.message}`);
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(r.chunks, { type: "audio/webm" }));

@@ -9,6 +9,7 @@ import { Search } from "./pages/Search";
 import { MeetingPage } from "./pages/MeetingPage";
 import { ExtensionPage } from "./pages/ExtensionPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { RecordingHelp } from "./pages/RecordingHelp";
 import "./style.css";
 
 function Private({ children }: { children: React.ReactNode }) {
@@ -36,6 +37,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/instalar" element={<ExtensionPage />} />
           <Route path="/extensao" element={<ExtensionPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
+          <Route path="/ajuda/gravacao" element={<RecordingHelp />} />
         </Route>
       </Routes>
     </BrowserRouter>

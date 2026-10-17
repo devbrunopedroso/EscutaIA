@@ -12,8 +12,25 @@ const TOKEN_KEY = "escutaia_token";
 }
 
 // Dentro do app desktop (ponte exposta pelo ui-preload.js).
-export const desktop = (window as unknown as { escutaiaDesktop?: { openRecorder(): void; startRecording(): void } })
-  .escutaiaDesktop;
+export interface RecordingState {
+  starting: boolean;
+  recording: boolean;
+  uploading: boolean;
+  elapsed: string | null;
+  title: string | null;
+  error: string | null;
+  hint: string | null;
+  lastId: string | null;
+}
+export interface DesktopBridge {
+  platform: string;
+  openRecorder(): void;
+  startRecording(): void;
+  stopRecording(): void;
+  getRecordingState(): Promise<RecordingState>;
+  onRecordingState(fn: (s: RecordingState) => void): () => void;
+}
+export const desktop = (window as unknown as { escutaiaDesktop?: DesktopBridge }).escutaiaDesktop;
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t: string | null) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY));

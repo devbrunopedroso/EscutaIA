@@ -300,7 +300,8 @@ function updateTray(elapsed) {
   if (!tray) return;
   tray.setImage(trayIcon());
   tray.setToolTip(recording ? `EscutaIA — gravando ${elapsed ?? ""}` : "EscutaIA");
-  if (isMac) tray.setTitle(recording && elapsed ? ` ${elapsed}` : "");
+  // macOS: "● 12:03" ao lado do ícone vermelho na barra de menus.
+  if (isMac) tray.setTitle(recording && elapsed ? ` ${elapsed}` : recState?.uploading ? " enviando…" : "");
   tray.setContextMenu(
     Menu.buildFromTemplate([
       recording
@@ -370,10 +371,18 @@ ipcMain.handle("mic:access", async () => {
   return systemPreferences.askForMediaAccess("microphone");
 });
 
-ipcMain.on("recording:state", (_e, state) => {
-  recording = !!state.recording;
-  updateTray(state.elapsed);
+// Estado do gravador (iniciando → gravando → enviando → enviado/erro). Vai para a
+// bandeja (ícone vermelho + tempo) e para a janela principal (botão Gravar/Parar).
+let recState = { starting: false, recording: false, uploading: false, elapsed: null, title: null, error: null, hint: null, lastId: null };
+
+ipcMain.on("recording:state", (_e, patch) => {
+  recState = { ...recState, ...patch };
+  recording = recState.recording;
+  updateTray(recState.elapsed);
+  mainWin?.webContents.send("recording-state", recState);
 });
+
+ipcMain.handle("recording:get", () => recState);
 
 // Envio para o servidor local (o token não passa pela página do gravador).
 ipcMain.handle("upload", async (_e, { audio, meta }) => {
@@ -393,8 +402,9 @@ ipcMain.handle("upload", async (_e, { audio, meta }) => {
 });
 
 ipcMain.handle("open", (_e, pathname) => showMain(pathname));
-ipcMain.handle("recorder:open", () => createRecorder(true));
-ipcMain.handle("recorder:start", () => sendToRecorder("start"));
+ipcMain.handle("recorder:open", () => void createRecorder(true));
+ipcMain.handle("recorder:start", () => void sendToRecorder("start"));
+ipcMain.handle("recorder:stop", () => void sendToRecorder("stop"));
 
 ipcMain.on("quit-now", () => {
   quitting = true;

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import { desktop, setToken } from "./api";
 import { StatusBar } from "./StatusBar";
+import { RecordingBanner, RecordingControl } from "./RecordingControl";
 import { useExtension } from "./extension";
 
 export function Layout() {
@@ -30,11 +31,7 @@ export function Layout() {
             onChange={(e) => setQ(e.target.value)}
           />
         </form>
-        {desktop && (
-          <button className="rec" onClick={() => desktop?.startRecording()} title="Gravar o som do computador (Zoom, Teams, WhatsApp…)">
-            ● Gravar
-          </button>
-        )}
+        <RecordingControl />
         <Link to="/instalar" className="small">
           {desktop ? "Extensão" : extension ? "Instalar" : <span className="pill">Instalar</span>}
         </Link>
@@ -53,6 +50,7 @@ export function Layout() {
           </button>
         )}
       </header>
+      <RecordingBanner />
       <StatusBar />
       <main>
         <Outlet />
