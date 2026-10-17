@@ -1,7 +1,7 @@
 {
   "name": "escutaia-desktop",
   "productName": "EscutaIA",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Grava reuniões do computador (Zoom, Teams, Meet, WhatsApp…) e envia para o EscutaIA.",
   "main": "src/main.js",
   "author": "EscutaIA",
