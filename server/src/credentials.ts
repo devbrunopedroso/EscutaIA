@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.ts";
+import { findClaudeBin } from "./ai.ts";
 import { pool } from "./db.ts";
 
 export type ClaudeCredentials =
@@ -63,7 +64,7 @@ function serverCredentials(): ClaudeCredentials | null {
   // Fora de produção, e no app local quando o Claude Code está instalado, aproveita o
   // login do Claude Code da própria máquina.
   if (process.env.NODE_ENV !== "production") return { kind: "cli" };
-  if (config.local && path.isAbsolute(config.claude.bin) && fs.existsSync(config.claude.bin)) return { kind: "cli" };
+  if (config.local && findClaudeBin()) return { kind: "cli" };
   return null;
 }
 
