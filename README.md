@@ -103,7 +103,7 @@ O workflow `.github/workflows/release.yml`:
 
 No GitHub, ative **Settings → Pages → Source: GitHub Actions**.
 
-**Assinatura (opcional).** Sem ela, o macOS pede botão direito → Abrir, e o Windows mostra o SmartScreen. Para assinar:
+**Assinatura (opcional).** Sem ela, o Windows mostra o SmartScreen e o macOS diz que *"não pôde verificar se o EscutaIA está livre de malware"*. No macOS 15+, o "botão direito → Abrir" não funciona mais. O usuário precisa ir em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**, ou rodar `xattr -dr com.apple.quarantine /Applications/EscutaIA.app`. Para assinar:
 - **macOS:** secrets `CSC_LINK`, `CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` e `APPLE_TEAM_ID` (conta Apple Developer, US$ 99/ano).
 - **Windows:** secrets `WIN_CSC_LINK` e `WIN_CSC_KEY_PASSWORD`.
 

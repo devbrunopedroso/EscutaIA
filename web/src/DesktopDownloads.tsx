@@ -67,8 +67,8 @@ export function DesktopDownloads() {
           </details>
           {best?.os === "mac" && (
             <p className="muted small">
-              <strong>Mac:</strong> abra o .dmg e arraste o EscutaIA para Aplicativos. Na 1ª vez, clique com o botão direito no
-              app → <em>Abrir</em> (o app ainda não é assinado pela Apple). Ao gravar, permita “Gravar áudio do sistema” e o
+              <strong>Mac:</strong> abra o .dmg e arraste o EscutaIA para Aplicativos. Se o Mac disser que não pôde verificar o app, vá em
+              <em>Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim</em> (o app ainda não é notarizado pela Apple). Ao gravar, permita “Gravar áudio do sistema” e o
               microfone.
             </p>
           )}

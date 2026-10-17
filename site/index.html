@@ -119,7 +119,7 @@
         <div class="two">
           <div class="card"><h3>Preciso de conta?</h3><p>Não. Tudo fica no seu computador. Para os resumos com IA, use o Claude Code já instalado ou cole um token em Configurações.</p></div>
           <div class="card"><h3>Precisa de internet?</h3><p>Só na primeira vez, para baixar o modelo de transcrição (~360 MB), e para os resumos com o Claude.</p></div>
-          <div class="card"><h3>O Mac diz que o app não pode ser aberto</h3><p>Clique com o botão direito no app → <strong>Abrir</strong>. O app ainda não é assinado pela Apple.</p></div>
+          <div class="card"><h3>O Mac diz que não pôde verificar o EscutaIA</h3><p>O app ainda não é notarizado pela Apple. Tente abrir uma vez, depois vá em <strong>Ajustes do Sistema → Privacidade e Segurança</strong> e clique em <strong>Abrir Mesmo Assim</strong>. Ou no Terminal: <code>xattr -dr com.apple.quarantine /Applications/EscutaIA.app</code></p></div>
           <div class="card"><h3>O Windows mostra um aviso azul</h3><p>Clique em <strong>Mais informações → Executar assim mesmo</strong>. O app ainda não é assinado.</p></div>
         </div>
       </section>
@@ -144,7 +144,7 @@
         { os: "linux", arch: "arm64", label: "Linux · AppImage ARM", file: "EscutaIA-linux-arm64.AppImage" },
       ];
       const NOTES = {
-        mac: "Abra o .dmg e arraste o EscutaIA para Aplicativos. Na 1ª vez, botão direito no app → Abrir.",
+        mac: "Abra o .dmg e arraste o EscutaIA para Aplicativos. Se o Mac disser que não pôde verificar o app: Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim.",
         win: "Execute o instalador. Se aparecer “O Windows protegeu o computador”: Mais informações → Executar assim mesmo.",
         linux: "Debian/Ubuntu: sudo apt install ./EscutaIA-linux-amd64.deb · Outras: chmod +x no AppImage e abra.",
       };
