@@ -30,10 +30,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { runner: macos-14, args: "--mac --arm64" }
-          - { runner: macos-13, args: "--mac --x64" }
+          - { runner: macos-latest, args: "--mac --arm64" }
+          - { runner: macos-15-intel, args: "--mac --x64" }
+          # Windows ARM: sem build nativo do sherpa-onnx/ffmpeg; o instalador x64 roda por emulação.
           - { runner: windows-latest, args: "--win --x64" }
-          - { runner: windows-11-arm, args: "--win --arm64" }
           - { runner: ubuntu-latest, args: "--linux --x64" }
           - { runner: ubuntu-24.04-arm, args: "--linux --arm64" }
     runs-on: ${{ matrix.runner }}

@@ -138,7 +138,6 @@
         { os: "mac", arch: "arm64", label: "macOS · Apple Silicon (M1, M2…)", file: "EscutaIA-mac-arm64.dmg" },
         { os: "mac", arch: "x64", label: "macOS · Intel", file: "EscutaIA-mac-x64.dmg" },
         { os: "win", arch: "x64", label: "Windows · x64", file: "EscutaIA-win-x64.exe" },
-        { os: "win", arch: "arm64", label: "Windows · ARM", file: "EscutaIA-win-arm64.exe" },
         { os: "linux", arch: "x64", label: "Linux · .deb (Ubuntu/Debian) x64", file: "EscutaIA-linux-amd64.deb" },
         { os: "linux", arch: "x64", label: "Linux · AppImage x64", file: "EscutaIA-linux-x86_64.AppImage" },
         { os: "linux", arch: "arm64", label: "Linux · .deb ARM", file: "EscutaIA-linux-arm64.deb" },
@@ -155,7 +154,8 @@
       const ua = navigator.userAgent;
       const os = /Mac/i.test(ua) ? "mac" : /Win/i.test(ua) ? "win" : /Linux/i.test(ua) && !/Android/i.test(ua) ? "linux" : null;
       // Macs novos são Apple Silicon (o navegador costuma dizer "Intel" mesmo assim).
-      const arch = os === "mac" || /arm|aarch64/i.test(ua) ? "arm64" : "x64";
+      // Windows ARM usa o instalador x64 (roda por emulação).
+      const arch = os === "win" ? "x64" : os === "mac" || /arm|aarch64/i.test(ua) ? "arm64" : "x64";
 
       const list = document.getElementById("app-downloads");
       for (const f of FILES) {

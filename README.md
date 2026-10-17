@@ -43,7 +43,7 @@ site/       Página de download (HTML estático, GitHub Pages) — a única part
 ## Para usuários
 
 Baixe na página do projeto (`site/`, publicada no GitHub Pages):
-1. **App** para macOS (Apple Silicon/Intel), Windows (x64/ARM) ou Linux (.deb/AppImage, x64/ARM).
+1. **App** para macOS (Apple Silicon/Intel), Windows (x64; roda também em ARM) ou Linux (.deb/AppImage, x64/ARM).
 2. **Extensão** do Chrome (zip; ou pela Chrome Web Store, quando for publicada).
 3. Abra o app, clique na extensão → **Conectar ao app** → **Permitir**.
 
@@ -96,7 +96,7 @@ git tag v0.2.0 && git push --tags
 ```
 
 O workflow `.github/workflows/release.yml`:
-- gera o app em 6 máquinas (macOS arm64/x64, Windows x64/arm64, Linux x64/arm64);
+- gera o app em 6 máquinas (macOS arm64/x64, Windows x64, Linux x64/arm64);
 - empacota a extensão;
 - cria a **Release** com nomes de arquivo fixos (`EscutaIA-mac-arm64.dmg`, `escutaia-extension.zip`…), para que os links `releases/latest/download/…` da página sempre apontem para a versão mais nova;
 - publica `site/` no GitHub Pages (a cada push na `main`), já apontando para o repositório.
