@@ -86,3 +86,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
   key   text PRIMARY KEY,
   value jsonb NOT NULL
 );
+
+-- Quantas vezes o worker pegou a reunião. Se o processo cair no meio (ex.: modelo
+-- corrompido derruba o onnxruntime), não fica em loop: na 3ª vez vira erro.
+ALTER TABLE meetings ADD COLUMN IF NOT EXISTS attempts integer NOT NULL DEFAULT 0;

@@ -435,7 +435,7 @@ await app.register(async (api) => {
 
   api.post<{ Params: { id: string } }>("/api/meetings/:id/retry", async (req, reply) => {
     const { rowCount } = await pool.query(
-      "UPDATE meetings SET status = 'queued', error = NULL WHERE id = $1 AND user_id = $2 AND status = 'failed'",
+      "UPDATE meetings SET status = 'queued', error = NULL, attempts = 0 WHERE id = $1 AND user_id = $2 AND status = 'failed'",
       [req.params.id, req.userId],
     );
     return rowCount ? { ok: true } : reply.code(409).send({ error: "só dá para reprocessar reuniões com falha" });

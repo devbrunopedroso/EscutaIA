@@ -153,16 +153,23 @@ async function stop(reason = null) {
   $("record").disabled = true;
   try {
     const blob = new Blob(r.chunks, { type: "audio/webm" });
-    const { id } = await api.upload(await blob.arrayBuffer(), {
+    const { id, pending } = await api.upload(await blob.arrayBuffer(), {
       title: r.title,
       startedAt: r.startedAt.toISOString(),
       stopReason: reason,
     });
-    report({ uploading: false, lastId: id, title: r.title, error: null });
-    $("status").textContent = "Enviado! A transcrição já começou — o app avisa quando terminar.";
+    if (pending) {
+      // Servidor fora do ar: o app guardou a gravação e envia sozinho quando ele voltar.
+      report({ uploading: false, lastId: null, title: r.title, error: null, hint: null });
+      $("status").textContent = "Gravação guardada. Ela será enviada sozinha assim que o EscutaIA estiver pronto.";
+    } else {
+      report({ uploading: false, lastId: id, title: r.title, error: null });
+      $("status").textContent = "Enviado! A transcrição já começou — o app avisa quando terminar.";
+    }
     $("title").value = "";
   } catch (e) {
-    // Não perde a gravação: oferece salvar o arquivo para enviar depois pelo site.
+    // Só chega aqui se o servidor recusou o arquivo (falhas de conexão ficam na fila do
+    // app). Não perde a gravação: oferece salvar o arquivo.
     $("status").textContent = "";
     report({ uploading: false });
     showError(`Falha ao enviar: ${e.message}`);

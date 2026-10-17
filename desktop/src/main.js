@@ -154,6 +154,9 @@ async function startServer() {
   server.stdout?.pipe(logFile);
   server.stderr?.pipe(logFile);
   server.on("message", onServerMessage);
+  // Ficou de pé 2 min: zera o contador (o limite é só para quedas em sequência).
+  const proc = server;
+  setTimeout(() => proc === server && (restarts = 0), 120_000).unref?.();
   server.on("error", (e) => dialog.showErrorBox("EscutaIA", `Não consegui iniciar o servidor local: ${e.message}`));
   server.on("exit", (code) => {
     server = null;
@@ -384,8 +387,12 @@ ipcMain.on("recording:state", (_e, patch) => {
 
 ipcMain.handle("recording:get", () => recState);
 
-// Envio para o servidor local (o token não passa pela página do gravador).
-ipcMain.handle("upload", async (_e, { audio, meta }) => {
+// Envio para o servidor local (o token não passa pela página do gravador). Se o
+// servidor não responder, a gravação fica em userData/pendentes e é enviada depois:
+// nunca abre "salvar arquivo" nem perde a reunião.
+const pendingDir = () => path.join(app.getPath("userData"), "pendentes");
+
+async function postMeeting(audio, meta) {
   const form = new FormData();
   form.append("title", meta.title);
   form.append("platform", "desktop");
@@ -397,8 +404,55 @@ ipcMain.handle("upload", async (_e, { audio, meta }) => {
     body: form,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error ?? `erro ${res.status}`);
+  // 4xx = o servidor recusou (não adianta tentar de novo); o resto é "fora do ar".
+  if (!res.ok) throw Object.assign(new Error(data.error ?? `erro ${res.status}`), { permanent: res.status < 500 });
   return { id: data.id };
+}
+
+function savePending(audio, meta) {
+  fs.mkdirSync(pendingDir(), { recursive: true });
+  const base = path.join(pendingDir(), `${Date.now()}-${crypto.randomBytes(3).toString("hex")}`);
+  fs.writeFileSync(`${base}.webm`, Buffer.from(audio));
+  fs.writeFileSync(`${base}.json`, JSON.stringify(meta));
+}
+
+let flushing = false;
+async function flushPending() {
+  if (flushing || !server) return;
+  flushing = true;
+  try {
+    const dir = pendingDir();
+    const metas = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort() : [];
+    for (const f of metas) {
+      const base = path.join(dir, f.slice(0, -5));
+      const meta = JSON.parse(fs.readFileSync(`${base}.json`, "utf8"));
+      const { id } = await postMeeting(fs.readFileSync(`${base}.webm`), meta);
+      fs.rmSync(`${base}.webm`, { force: true });
+      fs.rmSync(`${base}.json`, { force: true });
+      console.log(`[pendentes] enviada ${meta.title} → ${id}`);
+      recState = { ...recState, lastId: id, title: meta.title, error: null };
+      mainWin?.webContents.send("recording-state", recState);
+    }
+  } catch (e) {
+    console.error("[pendentes] ainda não deu:", e.message);
+  } finally {
+    flushing = false;
+  }
+}
+setInterval(flushPending, 30_000).unref?.();
+
+ipcMain.handle("upload", async (_e, { audio, meta }) => {
+  try {
+    return await postMeeting(audio, meta);
+  } catch (e) {
+    if (e.permanent) throw e;
+    savePending(audio, meta);
+    if (!server && !quitting) {
+      restarts = 0;
+      startServer().catch(console.error);
+    }
+    return { id: null, pending: true };
+  }
 });
 
 ipcMain.handle("open", (_e, pathname) => showMain(pathname));
@@ -441,6 +495,7 @@ if (!app.requestSingleInstanceLock()) {
     try {
       await startServer();
       await waitForServer();
+      flushPending();
     } catch (e) {
       dialog.showErrorBox("EscutaIA", `Não consegui iniciar o EscutaIA: ${e.message}`);
       quitting = true;

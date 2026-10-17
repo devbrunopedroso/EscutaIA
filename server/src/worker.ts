@@ -37,7 +37,7 @@ const JOB_COLUMNS = `id, user_id, title, audio_path, speakers_others, speaker_ti
 
 async function claimNext() {
   const { rows } = await pool.query(
-    `UPDATE meetings SET status = 'transcribing', error = NULL, claimed_at = now()
+    `UPDATE meetings SET status = 'transcribing', error = NULL, claimed_at = now(), attempts = attempts + 1
      WHERE id = (SELECT id FROM meetings WHERE status = 'queued' ORDER BY created_at
                  FOR UPDATE SKIP LOCKED LIMIT 1)
      RETURNING ${JOB_COLUMNS}`,
@@ -163,12 +163,15 @@ async function processMeeting(m: Job) {
 export async function startWorker(): Promise<void> {
   // Reuniões presas (worker caiu no meio) voltam para a fila. O prazo evita roubar
   // o trabalho de outro worker que ainda está processando; no app local só há um.
-  await pool.query(
-    `UPDATE meetings SET status = 'queued'
-     WHERE status IN ('transcribing', 'summarizing')
-       AND (claimed_at < now() - interval '6 hours' OR $1)`,
+  const stale = `status IN ('transcribing', 'summarizing') AND (claimed_at < now() - interval '6 hours' OR $1)`;
+  const { rows: failed } = await pool.query(
+    `UPDATE meetings SET status = 'failed',
+       error = 'O processamento parou 3 vezes no meio (veja server.log). Use “Tentar de novo”.'
+     WHERE ${stale} AND attempts >= 3 RETURNING id`,
     [config.local],
   );
+  for (const r of failed) console.error(`[worker] ${r.id} desistiu após 3 tentativas`);
+  await pool.query(`UPDATE meetings SET status = 'queued' WHERE ${stale}`, [config.local]);
   console.log(`[worker] pronto (motor ${config.whisper.engine}, falantes ${config.diarization.enabled ? "on" : "off"})`);
 
   let stopping = false;
