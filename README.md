@@ -137,3 +137,4 @@ Depois coloque o link em `CHROME_STORE_URL` no `site/index.html`.
 
 O mesmo servidor também roda em Docker como serviço multiusuário (`docker compose up -d --build`). Ele usa Postgres e whisper.cpp, e cada pessoa tem login. A extensão atual fala só com o app local; nesse modo, as gravações são enviadas pelo site (upload).
 # EscutaIA
+# EscutaIA
