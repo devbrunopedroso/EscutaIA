@@ -67,9 +67,10 @@ function lookupClaudeBin(): string | null {
   try {
     const out = win
       ? execFileSync("where", ["claude"], { encoding: "utf8", timeout: 5000 })
-      : execFileSync(process.env.SHELL || "/bin/zsh", ["-lic", "command -v claude"], { encoding: "utf8", timeout: 5000, stdio: ["ignore", "pipe", "ignore"] });
-    const p = out.split(/\r?\n/).map((l) => l.trim()).find((l) => path.isAbsolute(l) && fs.existsSync(l));
-    return p ?? null;
+      : execFileSync(process.env.SHELL || "/bin/zsh", ["-lic", "command -v claude; whence -p claude 2>/dev/null; which claude"], { encoding: "utf8", timeout: 5000, stdio: ["ignore", "pipe", "ignore"] });
+    // "command -v" devolve o caminho ou, se for alias, "alias claude='/…/claude'".
+    const paths = out.match(/(?:[A-Za-z]:)?[\\/][^\s'"=]*claude(?:\.exe|\.cmd)?/g) ?? [];
+    return paths.map((p) => p.replace(/^~/, home)).find((p) => path.isAbsolute(p) && fs.existsSync(p)) ?? null;
   } catch {
     return null;
   }
