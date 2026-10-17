@@ -50,6 +50,11 @@
       .note { font-size: 14px; color: var(--muted); margin-top: 12px; }
       .warn { background: #fff4e5; color: #8a4b00; border: 1px solid #f3c98b; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
       @media (prefers-color-scheme: dark) { .warn { background: #3a2a10; color: #f5c77e; border-color: #6b4c1c; } }
+      .mac-help { max-width: 640px; margin: 22px auto 0; text-align: left; }
+      .mac-help p { color: var(--muted); font-size: 15px; margin: 0 0 12px; }
+      .cmd { display: flex; gap: 8px; align-items: center; background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+      .cmd code { background: none; padding: 0; flex: 1; overflow-x: auto; white-space: nowrap; font-size: 13px; }
+      .link-btn { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
       footer { padding: 30px 0 50px; text-align: center; color: var(--muted); font-size: 14px; }
       .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
@@ -74,6 +79,18 @@
         </p>
         <a id="primary" class="btn" href="#baixar">⬇ Baixar o EscutaIA</a>
         <p id="primary-note" class="small muted" style="margin-top: 10px"></p>
+        <div id="mac-help" class="card mac-help" hidden>
+          <h3>No Mac, depois de instalar</h3>
+          <p>
+            Se aparecer <em>“A Apple não pôde verificar se o EscutaIA está livre de malware”</em>, clique em <strong>OK</strong>,
+            depois abra a tela abaixo e clique em <strong>Abrir Mesmo Assim</strong> (fica no fim da página). Só na 1ª vez.
+          </p>
+          <a class="btn secondary" href="x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension">🔒 Abrir Privacidade e Segurança</a>
+          <p class="small muted" style="margin-top: 14px">
+            <strong>Sem aviso nenhum:</strong> instale pelo Terminal com um comando (baixa, instala e abre):
+          </p>
+          <div class="cmd"><code id="install-cmd">curl -fsSL https://escutaia.devontravel.com.br/install.sh | bash</code><button id="copy-cmd" class="link-btn">copiar</button></div>
+        </div>
       </div>
 
       <div class="grid">
@@ -175,6 +192,18 @@
         primary.textContent = `⬇ Baixar para ${best.label.split(" ·")[0]}`;
         document.getElementById("primary-note").textContent = `${best.label} · grátis`;
         document.getElementById("os-note").textContent = NOTES[os];
+      }
+
+      // Mac: mostra como liberar o app (ainda não notarizado pela Apple) ao baixar.
+      if (os === "mac") {
+        const help = document.getElementById("mac-help");
+        const show = () => (help.hidden = false);
+        primary.addEventListener("click", show);
+        list.querySelectorAll("a").forEach((a) => a.href.includes("-mac-") && a.addEventListener("click", show));
+        document.getElementById("copy-cmd").addEventListener("click", (e) => {
+          navigator.clipboard.writeText(document.getElementById("install-cmd").textContent);
+          e.target.textContent = "✓ copiado";
+        });
       }
 
       const ext = document.getElementById("ext-btn");

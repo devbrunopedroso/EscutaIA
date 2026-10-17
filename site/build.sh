@@ -8,9 +8,9 @@ if [ -z "$REPO" ] && [ -n "$VERCEL_GIT_REPO_OWNER" ] && [ -n "$VERCEL_GIT_REPO_S
   REPO="$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG"
 fi
 rm -rf public && mkdir public
-cp index.html icon.png public/
+cp index.html icon.png install.sh public/
 if [ -n "$REPO" ]; then
-  sed -i.bak "s#SEU-USUARIO/escutaia#$REPO#" public/index.html && rm -f public/index.html.bak
+  for f in public/index.html public/install.sh; do sed -i.bak "s#SEU-USUARIO/escutaia#$REPO#" "$f" && rm -f "$f.bak"; done
   echo "links de download → github.com/$REPO/releases"
 else
   echo "aviso: defina ESCUTAIA_REPO (ex.: seu-usuario/escutaia) nas variáveis do projeto na Vercel"
