@@ -31,9 +31,11 @@ for (const target of targets) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "node-"));
   const archive = path.join(tmp, file);
   fs.writeFileSync(archive, Buffer.from(await res.arrayBuffer()));
-  // bsdtar/GNU tar extraem .tar.gz, .tar.xz e .zip (o tar do Windows 10+ é bsdtar).
   const member = osName === "win" ? `${base}/node.exe` : `${base}/bin/node`;
-  execFileSync("tar", ["-xf", archive, "-C", tmp, member]);
+  // No Windows usa o tar.exe do sistema (bsdtar, abre .zip). No bash do GitHub Actions
+  // o primeiro "tar" do PATH é o GNU tar do Git, que não abre .zip.
+  const tar = process.platform === "win32" ? path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe") : "tar";
+  execFileSync(tar, ["-xf", archive, "-C", tmp, member]);
   fs.mkdirSync(dest, { recursive: true });
   fs.renameSync(path.join(tmp, member), bin);
   fs.rmSync(tmp, { recursive: true, force: true });
