@@ -1,0 +1,8 @@
+# Na Vercel vai só a página de download (site/). Servidor, interface, app e
+# extensão rodam no computador de cada pessoa.
+desktop/
+server/
+web/
+extension/
+docker-compose.yml
+Dockerfile
