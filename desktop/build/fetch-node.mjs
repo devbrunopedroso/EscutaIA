@@ -37,7 +37,10 @@ for (const target of targets) {
   const tar = process.platform === "win32" ? path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe") : "tar";
   execFileSync(tar, ["-xf", archive, "-C", tmp, member]);
   fs.mkdirSync(dest, { recursive: true });
-  fs.renameSync(path.join(tmp, member), bin);
+  // Copia (não renomeia): no Windows do GitHub a pasta temporária fica em C: e o
+  // projeto em D:, e rename entre discos falha (EXDEV).
+  fs.copyFileSync(path.join(tmp, member), bin);
+  fs.chmodSync(bin, 0o755);
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`ok: ${bin}`);
 }
