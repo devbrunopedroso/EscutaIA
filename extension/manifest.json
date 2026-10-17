@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "EscutaIA — Gravador de reuniões",
+  "description": "Grava reuniões (Meet, Zoom, Teams…) e envia para o app EscutaIA no seu computador.",
+  "version": "0.4.0",
+  "permissions": [
+    "tabCapture",
+    "offscreen",
+    "storage",
+    "activeTab",
+    "notifications",
+    "alarms"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "EscutaIA",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://meet.google.com/*",
+        "https://*.zoom.us/*",
+        "https://*.zoom.com/*",
+        "https://teams.microsoft.com/*",
+        "https://teams.live.com/*",
+        "https://teams.cloud.microsoft/*"
+      ],
+      "js": [
+        "meeting-watch.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ]
+}

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EscutaIA — reuniões transcritas no seu computador</title>
+    <meta name="description" content="Grave, transcreva e pesquise suas reuniões. Tudo roda no seu computador." />
+    <link rel="icon" href="icon.png" />
+    <link rel="canonical" href="https://escutaia.devontravel.com.br/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://escutaia.devontravel.com.br/" />
+    <meta property="og:title" content="EscutaIA — reuniões transcritas no seu computador" />
+    <meta property="og:description" content="Grave, transcreva e pesquise suas reuniões. Tudo roda no seu computador." />
+    <meta property="og:image" content="https://escutaia.devontravel.com.br/icon.png" />
+    <style>
+      :root {
+        --bg: #f6f7f9; --card: #fff; --text: #1c2230; --muted: #616a7d; --border: #e3e6ec;
+        --accent: #4f46e5; --accent-soft: #eef0ff; --red: #e53935;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #111318; --card: #1a1d26; --text: #e8eaf0; --muted: #9aa1b2; --border: #2a2e3a; --accent: #8b85ff; --accent-soft: #23253d; }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      a { color: var(--accent); }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+      header { padding: 18px 0; }
+      header .wrap { display: flex; align-items: center; gap: 10px; }
+      header img { width: 30px; height: 30px; }
+      header strong { font-size: 19px; color: var(--accent); }
+      .ia { background: var(--accent); color: #fff; border-radius: 6px; padding: 0 5px; margin-left: 1px; }
+      .hero { padding: 48px 0 28px; text-align: center; }
+      .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 0 0 14px; }
+      .hero p { font-size: 19px; color: var(--muted); max-width: 640px; margin: 0 auto 28px; }
+      .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 650; text-decoration: none; font-size: 17px; border: 0; cursor: pointer; }
+      .btn.secondary { background: var(--accent-soft); color: var(--accent); }
+      .muted { color: var(--muted); }
+      .small { font-size: 14px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 26px 0; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+      .card h3 { margin: 0 0 6px; font-size: 17px; }
+      .card p { margin: 0; color: var(--muted); font-size: 15px; }
+      section { padding: 26px 0; }
+      h2 { font-size: 26px; margin: 0 0 6px; }
+      .steps { padding-left: 22px; margin: 10px 0 0; }
+      .steps li { margin: 6px 0; }
+      code { background: var(--accent-soft); padding: 1px 6px; border-radius: 5px; font-size: 0.92em; }
+      .downloads { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+      .downloads a { display: block; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; background: var(--card); }
+      .note { font-size: 14px; color: var(--muted); margin-top: 12px; }
+      .warn { background: #fff4e5; color: #8a4b00; border: 1px solid #f3c98b; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+      @media (prefers-color-scheme: dark) { .warn { background: #3a2a10; color: #f5c77e; border-color: #6b4c1c; } }
+      footer { padding: 30px 0 50px; text-align: center; color: var(--muted); font-size: 14px; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap"><img src="icon.png" alt="" /><strong>Escuta<span class="ia">IA</span></strong></div>
+    </header>
+
+    <div class="wrap">
+      <div id="config-warn" class="warn" hidden>
+        Configure o repositório em <code>site/index.html</code> (constante <code>REPO</code>) para os links de download
+        funcionarem.
+      </div>
+
+      <div class="hero">
+        <h1>Suas reuniões, transcritas<br />no seu computador.</h1>
+        <p>
+          Grave reuniões do Google Meet, Zoom, Teams ou WhatsApp. O EscutaIA transcreve, identifica quem falou, resume com IA
+          e deixa tudo pesquisável. Nada sai do seu computador.
+        </p>
+        <a id="primary" class="btn" href="#baixar">⬇ Baixar o EscutaIA</a>
+        <p id="primary-note" class="small muted" style="margin-top: 10px"></p>
+      </div>
+
+      <div class="grid">
+        <div class="card"><h3>🎙️ Grava qualquer reunião</h3><p>Pela extensão do Chrome (Meet, Zoom e Teams no navegador) ou pelo app (Zoom, Teams, WhatsApp…).</p></div>
+        <div class="card"><h3>🧑‍🤝‍🧑 Sabe quem falou</h3><p>Separa a sua voz da dos outros e usa os nomes reais das legendas do Meet e do Teams.</p></div>
+        <div class="card"><h3>🔎 Busca em tudo</h3><p>Ache a frase exata em qualquer reunião e pule direto para o momento em que ela foi dita.</p></div>
+        <div class="card"><h3>🔒 Privado</h3><p>Transcrição e banco de dados no seu computador. Resumos via Claude, com o seu próprio token.</p></div>
+      </div>
+
+      <section id="baixar">
+        <h2>1. Instale o app</h2>
+        <p class="muted">O app é o coração do EscutaIA: transcreve, guarda e mostra as suas reuniões.</p>
+        <ul id="app-downloads" class="downloads"></ul>
+        <p id="os-note" class="note"></p>
+      </section>
+
+      <section>
+        <h2>2. Instale a extensão do Chrome</h2>
+        <p class="muted">Para gravar reuniões no navegador. Funciona no Chrome, Edge e Brave.</p>
+        <div class="two">
+          <div class="card">
+            <a id="ext-btn" class="btn secondary" href="#">⬇ Baixar a extensão</a>
+            <ol id="ext-steps" class="steps small">
+              <li>Descompacte o arquivo <code>escutaia-extension.zip</code>.</li>
+              <li>Abra <code>chrome://extensions</code> e ative o <strong>Modo do desenvolvedor</strong>.</li>
+              <li>Clique em <strong>Carregar sem compactação</strong> e escolha a pasta.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>Depois de instalar</h3>
+            <ol class="steps small">
+              <li>Abra o app EscutaIA.</li>
+              <li>Clique no ícone da extensão → <strong>Conectar ao app</strong>.</li>
+              <li>Na janela do EscutaIA, clique em <strong>Permitir</strong>.</li>
+              <li>Numa reunião, clique em <strong>● Gravar esta aba</strong>. Ela para e envia sozinha quando a reunião acaba.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Perguntas frequentes</h2>
+        <div class="two">
+          <div class="card"><h3>Preciso de conta?</h3><p>Não. Tudo fica no seu computador. Para os resumos com IA, use o Claude Code já instalado ou cole um token em Configurações.</p></div>
+          <div class="card"><h3>Precisa de internet?</h3><p>Só na primeira vez, para baixar o modelo de transcrição (~360 MB), e para os resumos com o Claude.</p></div>
+          <div class="card"><h3>O Mac diz que o app não pode ser aberto</h3><p>Clique com o botão direito no app → <strong>Abrir</strong>. O app ainda não é assinado pela Apple.</p></div>
+          <div class="card"><h3>O Windows mostra um aviso azul</h3><p>Clique em <strong>Mais informações → Executar assim mesmo</strong>. O app ainda não é assinado.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>EscutaIA · Criado por <strong>DEVONTRAVEL</strong></footer>
+
+    <script>
+      // ⚙ Repositório no GitHub onde as Releases publicam os instaladores (ver README).
+      const REPO = "SEU-USUARIO/escutaia";
+      // Depois de publicar na Chrome Web Store, coloque o link aqui (vira instalação com um clique).
+      const CHROME_STORE_URL = "";
+
+      const base = `https://github.com/${REPO}/releases/latest/download`;
+      const FILES = [
+        { os: "mac", arch: "arm64", label: "macOS · Apple Silicon (M1, M2…)", file: "EscutaIA-mac-arm64.dmg" },
+        { os: "mac", arch: "x64", label: "macOS · Intel", file: "EscutaIA-mac-x64.dmg" },
+        { os: "win", arch: "x64", label: "Windows · x64", file: "EscutaIA-win-x64.exe" },
+        { os: "win", arch: "arm64", label: "Windows · ARM", file: "EscutaIA-win-arm64.exe" },
+        { os: "linux", arch: "x64", label: "Linux · .deb (Ubuntu/Debian) x64", file: "EscutaIA-linux-amd64.deb" },
+        { os: "linux", arch: "x64", label: "Linux · AppImage x64", file: "EscutaIA-linux-x86_64.AppImage" },
+        { os: "linux", arch: "arm64", label: "Linux · .deb ARM", file: "EscutaIA-linux-arm64.deb" },
+        { os: "linux", arch: "arm64", label: "Linux · AppImage ARM", file: "EscutaIA-linux-arm64.AppImage" },
+      ];
+      const NOTES = {
+        mac: "Abra o .dmg e arraste o EscutaIA para Aplicativos. Na 1ª vez, botão direito no app → Abrir.",
+        win: "Execute o instalador. Se aparecer “O Windows protegeu o computador”: Mais informações → Executar assim mesmo.",
+        linux: "Debian/Ubuntu: sudo apt install ./EscutaIA-linux-amd64.deb · Outras: chmod +x no AppImage e abra.",
+      };
+
+      if (REPO.startsWith("SEU-USUARIO")) document.getElementById("config-warn").hidden = false;
+
+      const ua = navigator.userAgent;
+      const os = /Mac/i.test(ua) ? "mac" : /Win/i.test(ua) ? "win" : /Linux/i.test(ua) && !/Android/i.test(ua) ? "linux" : null;
+      // Macs novos são Apple Silicon (o navegador costuma dizer "Intel" mesmo assim).
+      const arch = os === "mac" || /arm|aarch64/i.test(ua) ? "arm64" : "x64";
+
+      const list = document.getElementById("app-downloads");
+      for (const f of FILES) {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = `${base}/${f.file}`;
+        a.textContent = `⬇ ${f.label}`;
+        if (f.os === os && f.arch === arch) a.style.borderColor = "var(--accent)";
+        li.append(a);
+        list.append(li);
+      }
+
+      const best = FILES.find((f) => f.os === os && f.arch === arch);
+      const primary = document.getElementById("primary");
+      if (best) {
+        primary.href = `${base}/${best.file}`;
+        primary.textContent = `⬇ Baixar para ${best.label.split(" ·")[0]}`;
+        document.getElementById("primary-note").textContent = `${best.label} · grátis`;
+        document.getElementById("os-note").textContent = NOTES[os];
+      }
+
+      const ext = document.getElementById("ext-btn");
+      if (CHROME_STORE_URL) {
+        ext.href = CHROME_STORE_URL;
+        ext.textContent = "Adicionar ao Chrome";
+        document.getElementById("ext-steps").hidden = true;
+      } else {
+        ext.href = `${base}/escutaia-extension.zip`;
+      }
+    </script>
+  </body>
+</html>

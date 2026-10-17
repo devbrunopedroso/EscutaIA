@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: meetnotes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-escutaia}
+      POSTGRES_DB: meetnotes
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meetnotes"]
+      interval: 2s
+      retries: 30
+
+  api:
+    build: .
+    env_file: [{ path: .env, required: false }]
+    environment:
+      DATABASE_URL: postgres://meetnotes:${POSTGRES_PASSWORD:-meetnotes}@db:5432/meetnotes
+      DOWNLOADS_DIR: /downloads
+    volumes:
+      - audio:/data
+      # Instaladores do app desktop (gerados em desktop/dist) para a página "Instalar".
+      - ./desktop/dist:/downloads:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["node", "src/worker-main.ts"]
+    env_file: [{ path: .env, required: false }]
+    environment:
+      DATABASE_URL: postgres://meetnotes:${POSTGRES_PASSWORD:-meetnotes}@db:5432/meetnotes
+    volumes:
+      - audio:/data
+      - models:/models
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  audio:
+  models:

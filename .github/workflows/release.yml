@@ -1,0 +1,116 @@
+# Publica o EscutaIA: app desktop (gerado em cada sistema/processador, porque leva
+# módulos nativos e um Node.js próprio), extensão do Chrome e a página de download.
+#
+#  - git tag v0.2.0 && git push --tags  → gera tudo e cria a Release
+# A página de download fica na Vercel (site/vercel.json). Defina a variável do
+# repositório SITE_URL (Settings → Secrets and variables → Actions → Variables) com o
+# endereço da Vercel (padrão: https://escutaia.devontravel.com.br/): o app e a extensão usam esse link em "Baixe aqui".
+# Para usar o GitHub Pages em vez da Vercel, crie a variável DEPLOY_PAGES=true.
+#
+# Assinatura (opcional): secrets CSC_LINK, CSC_KEY_PASSWORD, APPLE_ID,
+# APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (macOS) e WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD
+# (Windows). Sem eles, os instaladores saem sem assinatura (funcionam, com aviso).
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  desktop:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-14, args: "--mac --arm64" }
+          - { runner: macos-13, args: "--mac --x64" }
+          - { runner: windows-latest, args: "--win --x64" }
+          - { runner: windows-11-arm, args: "--win --arm64" }
+          - { runner: ubuntu-latest, args: "--linux --x64" }
+          - { runner: ubuntu-24.04-arm, args: "--linux --arm64" }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - name: Site interno (React)
+        run: npm ci
+        working-directory: web
+      - name: Dependências do app
+        run: npm ci
+        working-directory: desktop
+      - name: Empacotar servidor + Node.js + instalador
+        working-directory: desktop
+        shell: bash
+        env:
+          VITE_SITE_URL: ${{ vars.SITE_URL || 'https://escutaia.devontravel.com.br/' }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          npm run bundle
+          EXTRA=""
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            if [ -n "$CSC_LINK" ]; then
+              EXTRA="-c.mac.hardenedRuntime=true -c.mac.notarize=true"   # Developer ID: assina e notariza
+            else
+              EXTRA="-c.mac.identity=-"                                   # ad-hoc (necessário no Apple Silicon)
+            fi
+          fi
+          npx electron-builder ${{ matrix.args }} --publish never $EXTRA
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.runner }}
+          path: |
+            desktop/dist/*.dmg
+            desktop/dist/*.exe
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+
+  extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Empacotar extensão (com o link da página de download)
+        run: |
+          cd extension
+          echo "{ \"site\": \"${{ vars.SITE_URL || 'https://escutaia.devontravel.com.br/' }}\" }" > config.json
+          zip -r ../escutaia-extension.zip . -x '.*'
+      - uses: actions/upload-artifact@v4
+        with: { name: extension, path: escutaia-extension.zip }
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [desktop, extension]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: out, merge-multiple: true }
+      - uses: softprops/action-gh-release@v2
+        with: { files: out/* }
+
+  pages:
+    if: vars.DEPLOY_PAGES == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.deploy.outputs.page_url }}" }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apontar a página para este repositório
+        run: sed -i "s#SEU-USUARIO/escutaia#${{ github.repository }}#" site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>EscutaIA – microfone</title>
+    <style>
+      body { margin: 0; font: 14px system-ui, sans-serif; color: #1c2230; display: grid; place-items: center; height: 100vh; text-align: center; }
+      main { padding: 20px; max-width: 360px; }
+      h1 { font-size: 17px; margin: 8px 0; }
+      p { margin: 6px 0; color: #4b5263; line-height: 1.45; }
+      .icon { font-size: 34px; }
+      .row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+      button { padding: 8px 14px; border: 0; border-radius: 8px; background: #4f46e5; color: #fff; font: inherit; cursor: pointer; }
+      button.secondary { background: #eef0ff; color: #4f46e5; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section id="asking">
+        <div class="icon">🎙️</div>
+        <h1>Permitir o microfone</h1>
+        <p>Clique em <strong>Permitir</strong> no aviso do Chrome para gravar a sua voz junto com a reunião.</p>
+        <p class="small">A gravação da reunião já começou. Isso só é pedido uma vez.</p>
+      </section>
+      <section id="ok" hidden>
+        <div class="icon">✅</div>
+        <h1>Microfone liberado</h1>
+        <p>Sua voz já está sendo gravada. Esta janela vai fechar…</p>
+      </section>
+      <section id="denied" hidden>
+        <div class="icon">🚫</div>
+        <h1>Microfone bloqueado</h1>
+        <p id="reason">O Chrome não liberou o microfone.</p>
+        <p>Clique no ícone 🎙️ com um <strong>x</strong> na barra de endereço desta janela, escolha <em>Permitir</em> e tente de novo.</p>
+        <div class="row">
+          <button id="retry">Tentar de novo</button>
+          <button id="skip" class="secondary">Gravar sem microfone</button>
+        </div>
+      </section>
+    </main>
+    <script src="mic.js"></script>
+  </body>
+</html>

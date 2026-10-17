@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>Escuta<span class="ia">IA</span></h1>
+
+    <section id="checking"><p class="muted">Procurando o app EscutaIA…</p></section>
+
+    <section id="closed" hidden>
+      <p><strong>O app EscutaIA não está aberto.</strong></p>
+      <p class="muted wrap">A extensão grava a reunião e o app, no seu computador, transcreve e guarda tudo.</p>
+      <button id="open-app">Abrir EscutaIA</button>
+      <p class="muted wrap small">Ainda não tem o app? <a id="download" href="#" target="_blank">Baixe aqui</a>.</p>
+    </section>
+
+    <section id="unpaired" hidden>
+      <p><strong>Conecte a extensão ao app</strong> (só uma vez).</p>
+      <p class="muted wrap">Uma janela do EscutaIA vai pedir sua permissão.</p>
+      <button id="pair">Conectar ao app</button>
+    </section>
+
+    <section id="ready" hidden>
+      <p id="tab" class="muted"></p>
+      <label class="check"><input id="mic" type="checkbox" checked /> Gravar meu microfone também</label>
+      <button id="start">● Gravar esta aba</button>
+      <button id="stop" class="stop" hidden>■ Parar e enviar</button>
+      <p id="status"></p>
+      <p id="auto" class="muted small wrap" hidden>Para e envia sozinho quando você sair da reunião ou fechar a aba.</p>
+      <label class="check small">
+        Parar após
+        <select id="silence">
+          <option value="2">2 min</option>
+          <option value="5">5 min</option>
+          <option value="10">10 min</option>
+          <option value="0">nunca</option>
+        </select>
+        de silêncio
+      </label>
+      <p class="row"><a id="open-ui" href="#">Abrir EscutaIA</a><span class="ok small">● conectado ao app</span></p>
+    </section>
+
+    <p id="pending" class="warn small wrap" hidden></p>
+    <p id="error" class="error"></p>
+    <p class="credits">Criado por <strong>DEVONTRAVEL</strong></p>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

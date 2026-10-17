@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'" />
+    <title>EscutaIA — Gravador</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <img src="../assets/icon.png" alt="" width="28" height="28" />
+      <h1>Escuta<span class="ia">IA</span></h1>
+    </header>
+
+    <main id="main">
+      <label>Título <input id="title" placeholder="Reunião de hoje" /></label>
+
+      <button id="record" class="record">● Gravar reunião</button>
+      <p id="status" class="status"></p>
+
+      <section class="levels">
+        <div class="level"><span>Reunião (som do computador)</span><meter id="lvl-system" min="0" max="1" value="0"></meter></div>
+        <div class="level"><span>Você (microfone)</span><meter id="lvl-mic" min="0" max="1" value="0"></meter></div>
+        <button id="test" class="link">Testar áudio (5 s)</button>
+      </section>
+
+      <section class="options">
+        <label class="check"><input id="mic" type="checkbox" /> Gravar meu microfone também</label>
+        <label class="check">
+          Parar sozinho após
+          <select id="silence">
+            <option value="2">2 min</option>
+            <option value="5">5 min</option>
+            <option value="10">10 min</option>
+            <option value="0">nunca</option>
+          </select>
+          de silêncio
+        </label>
+        <label class="check" id="login-item"><input id="openAtLogin" type="checkbox" /> Abrir com o computador</label>
+      </section>
+
+      <footer>
+        <a href="#" id="open">Abrir EscutaIA</a>
+        <span class="muted">Grava o som do computador: Zoom, Teams, WhatsApp…</span>
+      </footer>
+    </main>
+
+    <p id="error" class="error"></p>
+    <p class="credits">Criado por <strong>DEVONTRAVEL</strong></p>
+    <script src="renderer.js" type="module"></script>
+  </body>
+</html>

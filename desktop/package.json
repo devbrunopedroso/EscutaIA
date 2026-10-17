@@ -1,0 +1,98 @@
+{
+  "name": "escutaia-desktop",
+  "productName": "EscutaIA",
+  "version": "0.1.0",
+  "description": "Grava reuniões do computador (Zoom, Teams, Meet, WhatsApp…) e envia para o EscutaIA.",
+  "main": "src/main.js",
+  "author": "EscutaIA",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "npm run bundle && electron .",
+    "dist": "npm run bundle && electron-builder --publish never -c.mac.identity=-",
+    "bundle": "node build/bundle-server.mjs && node build/fetch-node.mjs"
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2"
+  },
+  "build": {
+    "appId": "dev.escutaia.desktop",
+    "productName": "EscutaIA",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "server/**/*",
+      "web/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "artifactName": "EscutaIA-${os}-${arch}.${ext}",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ],
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "O EscutaIA grava a sua voz nas reuniões.",
+        "NSAudioCaptureUsageDescription": "O EscutaIA grava o som das reuniões (Zoom, Teams, Meet…) para transcrever.",
+        "NSScreenCaptureUsageDescription": "O macOS exige esta permissão para capturar o som do computador. O EscutaIA não grava a tela.",
+        "LSUIElement": false
+      },
+      "hardenedRuntime": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "EscutaIA",
+      "buildUniversalInstaller": false
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "AudioVideo",
+      "maintainer": "EscutaIA <noreply@escutaia.dev>",
+      "synopsis": "Grava reuniões e envia para o EscutaIA"
+    },
+    "asar": false,
+    "extraResources": [
+      {
+        "from": "build/node/${os}-${arch}",
+        "to": "node"
+      }
+    ],
+    "protocols": [
+      {
+        "name": "EscutaIA",
+        "schemes": [
+          "escutaia"
+        ]
+      }
+    ]
+  },
+  "homepage": "https://github.com/escutaia/escutaia",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@electric-sql/pglite": "^0.5.10",
+    "@fastify/cors": "^11.3.1",
+    "@fastify/multipart": "^10.1.4",
+    "@fastify/static": "^10.1.6",
+    "fastify": "^5.12.7",
+    "fflate": "^0.8.3",
+    "ffmpeg-static": "^5.3.0",
+    "pg": "^8.23.1",
+    "sherpa-onnx-node": "^1.13.8"
+  }
+}
